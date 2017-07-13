@@ -13,7 +13,7 @@ import scala.collection.mutable.Map
 class Data (val clauses: java.util.List[Relation]){
 
   val tupples = getConstants.toArray
-  val relations = getRelations.toArray
+  val relations = getRelations
   val tupleMap = getTupleMap
   val tupplesSize = getTuplesSize // p/n
   val numTuples = tupples.size // all tupples of the predicate

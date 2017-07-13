@@ -12,8 +12,6 @@ abstract class Predicate(var arity: Int, var types: List[String], var order: Lis
     this(arity, null, null)
    
   }
-
- 
 }
 
 class KnowledgeBase {

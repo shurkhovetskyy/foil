@@ -41,7 +41,7 @@ class Var(name:String) extends Term(name:String)  {
   }
   
   override def equals(other: Any): Boolean = other match { 
-   // case that: Term => that.canEqual(this) and this.name == other.name
+    case other: Var => other.canEqual(this) && this.name == other.name
     case _ => false 
   }
   
