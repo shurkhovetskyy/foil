@@ -14,11 +14,22 @@ class Data (val clauses: java.util.List[Relation]){
 
   val tupples = getConstants.toArray
   val relations = getRelations
+  val predicateMap = getPredicateMap
   val tupleMap = getTupleMap
   val tupplesSize = getTuplesSize // p/n
   val numTuples = tupples.size // all tupples of the predicate
   val numRelations = relations.size
 
+  private def getPredicateMap = {
+    val predicateMap = Map.empty[String, RuleBasedPredicate]
+    for (clause <- this.clauses){
+      if (!predicateMap.contains(clause.predicate)) {
+        predicateMap += clause.predicate -> new RuleBasedPredicate(clause.predicate, clause.tupples)
+      }
+    }
+    predicateMap
+  }
+  
   private def getTupleMap = {
     // TODO: make string and List[List[String]] separate types, Relation and  RelationArguments/Tuples/RelationLiterals, respectively
     val tupleMap = Map.empty[String, List[List[String]]]

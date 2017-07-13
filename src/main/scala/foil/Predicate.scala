@@ -5,9 +5,9 @@ import scala.collection.mutable.Map
 
 abstract class Predicate(var arity: Int, var types: List[String], var order: List[String]) {
   
-  var name: String
-  var rules: List[String]
-  var param_types: List[String]
+  var name: String = ""
+  var rules: List[String] = null
+  var param_types: List[String] = null
   def this(arity: Int = 1) {
     this(arity, null, null)
    
@@ -39,19 +39,18 @@ class KnowledgeBase {
 }
 
 
-class RuleBasedPredicate/* extends Predicate*/ {
+class RuleBasedPredicate extends Predicate {
+  
   
   def this(name: String = "", types: List[String] = null) {
     this()
-    //this.name = name
-    /*this.rules: List[Predicate] 
-    
+    this.name = name    
     if (types == null || types.isEmpty) {
       this.arity = 0
     } else {
       this.param_types = types
       this.arity = types.size
-    }  */
+    }
   }
   
   /*def resolve(terms: List[(Member, Var)]) {

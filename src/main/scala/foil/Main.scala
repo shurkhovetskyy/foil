@@ -11,6 +11,7 @@ object Main extends App {
 	
 	println("Base Knowledge:")
 	bKnowledge.tupleMap.foreach(println(_))
+	bKnowledge.predicateMap.foreach(predicate => println(predicate._2.name + " " + predicate._2.arity))
 
 	println("\nPositive:")
 	epos.tupleMap.foreach(println(_))
@@ -68,7 +69,10 @@ object Main extends App {
 	}
 	
 	def generateCandidates (predPool: Set[String]) {
-		
+		bKnowledge.predicateMap.foreach(predicate => {
+		  val arity = predicate._2.arity
+		  
+		})
 		
 		
 	}
