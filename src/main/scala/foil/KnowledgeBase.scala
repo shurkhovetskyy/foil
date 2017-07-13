@@ -6,10 +6,14 @@ object KnowledgeBase {
 	private var posHolder: Data = null
 	private var negHolder: Data = null
 	
+	def declarePositiveExamples() {
+	  
+	}
+	
 	def load {
-		baseHolder = Data.apply("/foil/bg.data")
-		posHolder = Data.apply("/foil/pos.data")
+	  posHolder = Data.apply("/foil/pos.data")
 		negHolder = Data.apply("/foil/neg.data")
+		baseHolder = Data.apply("/foil/bg.data")
 	}
 	
 	def print {
@@ -25,7 +29,11 @@ object KnowledgeBase {
 	}
 	
 	def isTargetPredicate (predicate: String):Boolean = {
-		posHolder.relations.contains(predicate)
+	  if (posHolder != null) {
+		  posHolder.relations.contains(predicate)
+	  } else {
+	    true
+	  }
 	}
 	
 	def base = baseHolder

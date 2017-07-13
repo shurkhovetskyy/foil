@@ -5,8 +5,8 @@ import java.util.ArrayList
 
 object Main extends App {
 
-//	KnowledgeBase.load
-//	KnowledgeBase.print
+	KnowledgeBase.load
+	KnowledgeBase.print
 	
 
 	

@@ -17,7 +17,7 @@ class Data (val clauses: java.util.List[Relation]){
   val predicateMap = getPredicateMap
   val tupleMap = getTupleMap
   val tupplesSize = getTuplesSize // p/n
-  val numTuples = tupples.size // all tupples of the predicatege
+  val numTuples = tupples.size // all tuples of the predicate
   val numRelations = relations.size
 
   private def getPredicateMap = {
