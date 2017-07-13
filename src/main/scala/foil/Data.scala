@@ -17,14 +17,15 @@ class Data (val clauses: java.util.List[Relation]){
   val predicateMap = getPredicateMap
   val tupleMap = getTupleMap
   val tupplesSize = getTuplesSize // p/n
-  val numTuples = tupples.size // all tupples of the predicate
+  val numTuples = tupples.size // all tupples of the predicatege
   val numRelations = relations.size
 
   private def getPredicateMap = {
-    val predicateMap = Map.empty[String, RuleBasedPredicate]
+    val predicateMap = Map.empty[String, Predicate]
     for (clause <- this.clauses){
       if (!predicateMap.contains(clause.predicate)) {
-        predicateMap += clause.predicate -> new RuleBasedPredicate(clause.predicate, clause.tupples)
+      	Predicate.addToList(predicateMap, clause.predicate, clause.tupples)
+      //	predicateMap += clause.predicate -> new Predicate(clause.predicate, clause.tupples)
       }
     }
     predicateMap

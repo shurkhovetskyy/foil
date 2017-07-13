@@ -5,19 +5,10 @@ import java.util.ArrayList
 
 object Main extends App {
 
-	val bKnowledge = Data.apply("/foil/bg.data")
-	val epos = Data.apply("/foil/pos.data")
-	val eneg = Data.apply("/foil/neg.data")
+//	KnowledgeBase.load
+//	KnowledgeBase.print
 	
-	println("Base Knowledge:")
-	bKnowledge.tupleMap.foreach(println(_))
-	bKnowledge.predicateMap.foreach(predicate => println(predicate._2.name + " " + predicate._2.arity))
 
-	println("\nPositive:")
-	epos.tupleMap.foreach(println(_))
-	
-	println("\nNegative:")
-	eneg.tupleMap.foreach(println(_))
 	
 	//foil(bKnowledge)
 //	println(getTargetPredicate(epos))
@@ -27,15 +18,15 @@ object Main extends App {
 
 	def foil(B_knowledge: Data, target: Predicate) = {
 		
-		var remPos = epos;	// Remaining positive examples.
+		var remPos = KnowledgeBase.pos;	// Remaining positive examples.
 		// Pool of predicates from which candidates can be generated.
 		// Includes predicates from base knowledge plus learned
 		// predicates if any.
-		var predPool = bKnowledge.relations.union(learnedPredicates);
+		var predPool = KnowledgeBase.base.relations.union(learnedPredicates);
 		
 		while	(remPos != Set.empty) {
 			var newRule = Set.empty[String];
-			var newRuleNeg = eneg
+			var newRuleNeg = KnowledgeBase.neg;
 			while (newRuleNeg != Set.empty) {
 				// 1. candidate_literals = generate candidates()
 				// 2. best_literal = foil_gain (L, newrule)
@@ -69,8 +60,9 @@ object Main extends App {
 	}
 	
 	def generateCandidates (predPool: Set[String]) {
-		bKnowledge.predicateMap.foreach(predicate => {
+		KnowledgeBase.base.predicateMap.foreach(predicate => {
 		  val arity = predicate._2.arity
+		  
 		  
 		})
 		

@@ -3,57 +3,46 @@ package foil
 import java.util.ArrayList
 import scala.collection.mutable.Map
 
-abstract class Predicate(var arity: Int, var types: List[String], var order: List[String]) {
-  
-  var name: String = ""
-  var rules: List[String] = null
-  var param_types: List[String] = null
-  def this(arity: Int = 1) {
-    this(arity, null, null)
-   
-  }
+abstract class Predicate(val name: String) {
+
+	var paramTypes: List[String] = null
+	var arity = 0
+	
+	def setTuples (tuples: List[String]) {
+		arity = if (tuples.isEmpty ) { 0 } else {tuples.size};
+		paramTypes = tuples;
+	}
 }
 
-class KnowledgeBase {
-  
-  val base : Map[String, Predicate] = null
-  
-  def getItem(key: String) : Predicate = {
-    //if this._map.has_key(key):
-     // raise "Predicate with name '" + predicate.name + "' already exists." Exception
-    this.base.getOrElse(key, null)
-  }
-  
-  def remove(predicate: Predicate) {
-     this.base -= predicate.name
-  }
-  
-  def add(predicate: Predicate) {
-    this.base(predicate.name) = predicate
-  }
-
-  def addAll(list: List[Predicate]) {
-     list.foreach(predicate => this.add(predicate))
-  }
-  
+object Predicate {
+	def addToList(list: Map[String, Predicate],
+			predicate : String,
+			tuples: List[String]) {
+		
+			var predObject = getObject(predicate);
+			predObject.setTuples(tuples);
+			
+			list += predicate -> predObject;
+	}
+	
+	// Decide type of predicate and return its new instance.	
+	private def getObject (predicate: String):Predicate = {
+		if (KnowledgeBase.isTargetPredicate(predicate))
+			new RuleBasedPredicate (predicate)
+		else
+			new BaseKnowledgePredicate(predicate)
+	}
+null
 }
 
+class BaseKnowledgePredicate(name: String) extends Predicate( name: String) {
 
-class RuleBasedPredicate extends Predicate {
-  
-  
-  def this(name: String = "", types: List[String] = null) {
-    this()
-    this.name = name    
-    if (types == null || types.isEmpty) {
-      this.arity = 0
-    } else {
-      this.param_types = types
-      this.arity = types.size
-    }
-  }
-  
-  /*def resolve(terms: List[(Member, Var)]) {
+}
+
+class RuleBasedPredicate(name: String) extends Predicate(name: String) {
+
+
+	/*def resolve(terms: List[(Member, Var)]) {
     from trimlogic.algorithm import unify
     println(this + "._resolve( " + str(terms) + " ) ")
     for rule in self.rules:
