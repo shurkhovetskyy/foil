@@ -85,7 +85,7 @@ object KnowledgeBase {
 	  var N = 0 // n++_(i) TODO: check it !!!
     var n = 0 // n+_(i+1)
 
-    var tuples:List[List[String]] = Nil
+    var tuplesIntersection = List[List[String]]()
     bodyPredicates.foreach(predicate => {	   
       
       val predicateTuples = baseHolder.tupleMap(predicate._2)
@@ -96,6 +96,7 @@ object KnowledgeBase {
       Main.debug(predicateTuples.toString())
       
       var newBaseKnowledge = List[List[String]]()
+      var newTargetTuples = List[List[String]]() // to check existence of negative patterns
       
       targetTuples.foreach(targetTuple => {
         
@@ -114,7 +115,7 @@ object KnowledgeBase {
   	      if (n_added) {
   	        // we save consistent tuple from base knowledge
   	        newBaseKnowledge = newBaseKnowledge ::: List(tuple)
-  	        
+  	        newTargetTuples = newTargetTuples ::: List(targetTuple)
   	        
   	        //Main.debug(positionList + " " + targetTuple + " " + tuple)
   	        n += 1
@@ -128,7 +129,8 @@ object KnowledgeBase {
   	  })
   	  
   	  Main.debug(newBaseKnowledge.toString())
-  	  tuples = newBaseKnowledge
+  	  Main.debug(newTargetTuples.toString())
+  	  
 	  })
 	  Main.debug("n++ = " + N + "; n+ = " + n)
 	  (N, n)
@@ -195,7 +197,7 @@ object KnowledgeBase {
 		    list.add(new Var("X1"))
 		    candidates.add(list)
 		    
-		    list = new ArrayList[Term]
+		    /*list = new ArrayList[Term]
 		    list.add(new Var("X1"))
 		    list.add(new Var("X2"))
 		    candidates.add(list)
@@ -208,16 +210,16 @@ object KnowledgeBase {
 		    list = new ArrayList[Term]
 		    list.add(new Var("X2"))
 		    list.add(new Atom("Y1")) // we don't care about this variable in the target predicate
-		    candidates.add(list)
+		    candidates.add(list)*/
 		  } 
 		  else if (arity == 1) {
 		    var list = new ArrayList[Term]
 		    list.add(new Var("X1"))
 		    candidates.add(list)
 		    
-		    list = new ArrayList[Term]
+		    /*list = new ArrayList[Term]
 		    list.add(new Var("X2"))
-		    candidates.add(list)
+		    candidates.add(list)*/
 		  }
 	  	    
 	    result(name) = candidates
