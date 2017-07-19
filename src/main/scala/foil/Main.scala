@@ -9,47 +9,9 @@ object Main extends App {
   var DEBUG = true
 	KnowledgeBase.load
 	KnowledgeBase.print
-
+	KnowledgeBase.foil
   
-	var targetPredicates = KnowledgeBase.generateTargetVariables
-	var candidates = KnowledgeBase.generateCandidates
-	var bodyPredicates = Map.empty[ArrayList[Term], String] // predicates to be added to the body
-	        
-	targetPredicates.foreach(target => {
 
-	  candidates.foreach(candidate => {
-	    
-	    val predicateName = candidate._1 // obtain right-side predicate name
-	    val varsCombinations = candidate._2 // and all its possible variables combinations
-	    val iterator = varsCombinations.iterator() 
-	    
-	    var wig = 0d
-      while (iterator.hasNext())  { // move all over variables combinations of the right-side predicate
-	      val rightSideVars = iterator.next()
-	      val predicates = updateRuleBody(bodyPredicates, predicateName, rightSideVars)
-
-	      debug("\nBody: " + predicates)
-	      
-	      val gain = KnowledgeBase.calculateGain(target, predicates)
-	      if (gain > wig) {
-	        wig = gain
-	        debug("Gain: " + gain)
-	        bodyPredicates(rightSideVars) = predicateName
-	      }
-	    }
-	    
-	    
-	  })
-	})
-	
-	println(bodyPredicates)
-
-  def updateRuleBody(bodyPredicates: Map[ArrayList[Term], String], predicateName: String, predicateVars: ArrayList[Term]) = {
-    // clone map with body predicates
-    val updatedBody = Map[ArrayList[Term], String]() ++= bodyPredicates
-    updatedBody(predicateVars) = predicateName
-    updatedBody
-  }
 	
 	//foil(bKnowledge)
 //	println(getTargetPredicate(epos))

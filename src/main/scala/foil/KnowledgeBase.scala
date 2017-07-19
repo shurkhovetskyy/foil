@@ -52,20 +52,6 @@ object KnowledgeBase {
 	def neg = negHolder
 	
 	/*
-	 * Finds variables matching using position in predicate variables list
-	 */
-	def calculateGain(target: (String, ArrayList[Term]), bodyPredicates: Map[ArrayList[Term], String]) = {
-	  
-	  Main.debug("\nFind variable occurences:")
-	  
-	  // TODO: calculate correctly - update bknowledge
-	  // obtain n+, n- from previous T+, T-
-	  
-	  // calculate current n+, n-
-	  matchTuples(target, bodyPredicates)
-	}
-	
-	/*
 	 * number of bits to signal that tuple is positive/negative
 	 */
 	def entropy(n_pos: Double, n_neg: Double) = {
@@ -140,35 +126,73 @@ object KnowledgeBase {
 	  
 	  Main.debug("Set of tuples: " + tuplesIntersection.toString())
 	  Main.debug("n++ = " + N + "; n+ = " + n)
-	  (N, n)
+	  (tuplesIntersection, (N, n))
 	}
 	
+	def foil() {
+  	var targetPredicates = generateTargetVariables
+  	var candidates = generateCandidates
+  	var bodyPredicates = Map.empty[ArrayList[Term], String] // predicates to be added to the body
+  	        
+  	targetPredicates.foreach(target => {
+  
+  	  val targetName = target._1
+  	  var positiveExamples = posHolder.tupleMap(targetName)
+  	  var negativeExamples = negHolder.tupleMap(targetName)
+  	  
+  	  candidates.foreach(candidate => {
+  	    
+  	    val predicateName = candidate._1 // obtain right-side predicate name
+  	    val varsCombinations = candidate._2 // and all its possible variables combinations
+  	    val iterator = varsCombinations.iterator() 
+  	    
+  	    var wig = 0d
+        while (iterator.hasNext())  { // move all over variables combinations of the right-side predicate
+  	      val rightSideVars = iterator.next()
+  	      val predicates = updateRuleBody(bodyPredicates, predicateName, rightSideVars)
+  
+  	      Main.debug("\nBody: " + predicates)
+  	      
+  	      val tuples = matchTuples(target, predicates, positiveExamples, negativeExamples)
+  	      val gain = tuples._1
+  	      /*positiveExamples = tuples._2._1.toList
+  	      negativeExamples = tuples._2._2.toList*/
+  	      if (gain > wig) {
+  	        wig = gain
+  	        Main.debug("Gain: " + gain + "; Positive " + tuples._2._1.toList + "; Negative " + tuples._2._2.toList)
+  	        bodyPredicates(rightSideVars) = predicateName
+  	      }
+  	    }
+  	    
+  	    
+  	  })
+  	})
+  	
+  	println(bodyPredicates)
+	}
 	
 	/* 
 	 * Term object can be variable or atom
 	 * in case of Var object we have to check that all Var objects for both target and right-side predicate must match
 	 */
-	def matchTuples(target: (String, ArrayList[Term]), bodyPredicates: Map[ArrayList[Term], String]) = {
+	def matchTuples(target: (String, ArrayList[Term]), bodyPredicates: Map[ArrayList[Term], String], positive: List[List[String]], negative: List[List[String]]) = {
 	  
-	  val targetName = target._1
-	  val positive = posHolder.tupleMap(targetName)
-	  val negative = negHolder.tupleMap(targetName)
-
 	  val n_pos_i = positive.size
 	  val n_neg_i = negative.size
 	  val ic_prev = entropy(n_pos_i, n_neg_i)
 	  
 	  val pos = foilAlgorithm(positive, target, bodyPredicates)
     val neg = foilAlgorithm(negative, target, bodyPredicates)
-	  
-	  
+
+    val positiveExamples = pos._1
+    val negativeExamples = neg._1
     var gain = 0d
-    if (pos._2 != 0 &&  neg._2 != 0) {
-	    val ic_next = entropy(pos._2, neg._2)
-	    gain = wig(ic_prev, ic_next, pos._1) 
+    if (pos._2._2 != 0 &&  neg._2._2 != 0) {
+	    val ic_next = entropy(pos._2._2,  neg._2._2)
+	    gain = wig(ic_prev, ic_next, pos._2._1) 
 	    Main.debug(n_pos_i + " " + n_neg_i + " " + ic_prev + " " + ic_next + " " + gain)
 	  }
-	  gain    
+	  (gain, (positiveExamples, negativeExamples))     
 	}
 	
 	/*
@@ -234,6 +258,12 @@ object KnowledgeBase {
 		result
 	}
 	
+  def updateRuleBody(bodyPredicates: Map[ArrayList[Term], String], predicateName: String, predicateVars: ArrayList[Term]) = {
+    // clone map with body predicates
+    val updatedBody = Map[ArrayList[Term], String]() ++= bodyPredicates
+    updatedBody(predicateVars) = predicateName
+    updatedBody
+  }
 
 //	def getItem(key: String): Predicate = {
 //		//if this._map.has_key(key):

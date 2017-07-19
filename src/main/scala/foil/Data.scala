@@ -72,8 +72,6 @@ class Data (val clauses: java.util.List[Relation]){
 
 object Data {
 
-  def test = apply("/kinship.data")
-
   def apply(path: String): Data = {
     val l = new util.ArrayList[Relation]()
     val res = Source.fromURL(getClass.getResource(path))
