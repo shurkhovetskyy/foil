@@ -59,21 +59,50 @@ object KnowledgeBase {
 	  val rightSide = baseHolder.tupleMap(predicateName)
 	  
 	  Main.debug("\nFind variable occurences:")
-	  val posEntropy = findVariable(positive, rightSide, positionList)
-	  val nedEntropy =findVariable(negative, rightSide, positionList)
+	  
+	  // obtain n+, n- from previous T+, T-
+	  val n_pos_i = positive.size
+	  val n_neg_i = negative.size
+	  val ic_prev = entropy(n_pos_i, n_neg_i)
+	  
+	  // calculate current n+, n-
+	  val pos = matchTuples(positive, rightSide, positionList)
+	  val neg = matchTuples(negative, rightSide, positionList)
+	  var gain = 0d // for some literals can be equal to 0 if literal does not match to target predicate
+	  if (pos._2 != 0 &&  neg._2 != 0) {
+	    val ic_next = entropy(pos._2, neg._2)
+	    gain = wig(ic_prev, ic_next, pos._1) 
+	    Main.debug(n_pos_i + " " + n_neg_i + " " + ic_prev + " " + ic_next + " " + gain)
+	  } 
+	  
 	}
 	
-	/* term object can be variable or atom
-	 * in case of Var object we have to check that all Var objects for both target and right-side predicate must match  in find() method
-	 * and we do not care about Atom objects
+	/*
+	 * number of bits to signal that tuple is positive/negative
 	 */
-	def findVariable(targetTuples: List[List[String]], rightSideTuples: List[List[String]], positionList: ArrayList[(Int, (Int, Term))]) = {
+	def entropy(n_pos: Double, n_neg: Double) = {
+	  - math.log(n_pos / (n_pos + n_neg)) / math.log(2)
+	}
+	
+	/*
+	 * weighted inomation gain
+	 * ic_i, ic_(i+1), n_i_++
+	 */
+	def wig(ic_prev: Double, ic_next: Double, n_i: Double) = {
+	  n_i * (ic_prev - ic_next)
+	}
+	
+	/* 
+	 * Term object can be variable or atom
+	 * in case of Var object we have to check that all Var objects for both target and right-side predicate must match
+	 */
+	def matchTuples(targetTuples: List[List[String]], rightSideTuples: List[List[String]], positionList: ArrayList[(Int, (Int, Term))]) = {
 	  Main.debug(targetTuples.toString())
 	  Main.debug(rightSideTuples.toString() + "\n")
 	  //Main.debug(positionList.toString())
 	  
-    var N = 0 // n++ TODO: check it !!!
-    var n = 0 // n+
+    var N = 0 // n++_(i) TODO: check it !!!
+    var n = 0 // n+_(i+1)
     targetTuples.foreach(targetTuple => {
       var N_added = false
       
