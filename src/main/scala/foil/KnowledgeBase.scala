@@ -85,14 +85,17 @@ object KnowledgeBase {
 	  var N = 0 // n++_(i) TODO: check it !!!
     var n = 0 // n+_(i+1)
 
+    var tuples:List[List[String]] = Nil
     bodyPredicates.foreach(predicate => {	   
       
       val predicateTuples = baseHolder.tupleMap(predicate._2)
       val positionList = Term.positionList(target, predicate._1)
       
-      Main.debug(predicate.toString())
+      Main.debug("\n" + predicate.toString())
       Main.debug(positionList + " " + targetTuples)
       Main.debug(predicateTuples.toString())
+      
+      var newBaseKnowledge = List[List[String]]()
       
       targetTuples.foreach(targetTuple => {
         
@@ -109,7 +112,11 @@ object KnowledgeBase {
   	      }
 
   	      if (n_added) {
-  	        Main.debug(positionList + " " + targetTuple + " " + tuple)
+  	        // we save consistent tuple from base knowledge
+  	        newBaseKnowledge = newBaseKnowledge ::: List(tuple)
+  	        
+  	        
+  	        //Main.debug(positionList + " " + targetTuple + " " + tuple)
   	        n += 1
             if (!N_added) {
               N += 1
@@ -118,9 +125,10 @@ object KnowledgeBase {
   	        //Main.debug("n++ = " + N + "; n+ = " + n)
   	      }
   	    })
-  	    
-  	    
   	  })
+  	  
+  	  Main.debug(newBaseKnowledge.toString())
+  	  tuples = newBaseKnowledge
 	  })
 	  Main.debug("n++ = " + N + "; n+ = " + n)
 	  (N, n)
