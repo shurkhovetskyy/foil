@@ -53,7 +53,7 @@ object KnowledgeBase {
 	/*
 	 * Finds variables matching using position in predicate variables list
 	 */
-	def find(targetName: String, predicateName: String, positionList: ArrayList[(Int, (Int, Term))]) = {
+	def calculateGain(targetName: String, predicateName: String, positionList: ArrayList[(Int, (Int, Term))]) = {
 	  val positive = posHolder.tupleMap(targetName)
 	  val negative = negHolder.tupleMap(targetName)
 	  val rightSide = baseHolder.tupleMap(predicateName)
@@ -74,7 +74,7 @@ object KnowledgeBase {
 	    gain = wig(ic_prev, ic_next, pos._1) 
 	    Main.debug(n_pos_i + " " + n_neg_i + " " + ic_prev + " " + ic_next + " " + gain)
 	  } 
-	  
+	  gain
 	}
 	
 	/*

@@ -13,7 +13,8 @@ object Main extends App {
   
 	var targetPredicates = KnowledgeBase.generateTargetVariables
 	var candidates = KnowledgeBase.generateCandidates
-	
+	var maxWigPredicate = scala.collection.mutable.Map.empty[String, ArrayList[Term]]
+	        
 	targetPredicates.foreach(target => {
 
 	  val targetName = target._1
@@ -25,7 +26,8 @@ object Main extends App {
 	    val iterator = varsCombinations.iterator() 
 	    
       debug("\nTarget variables position: ")
-	    while (iterator.hasNext())  { // move all over variables combinations of the right-side predicate
+      var wig = 0d
+      while (iterator.hasNext())  { // move all over variables combinations of the right-side predicate
 	      val rightSideVars = iterator.next()
 	      debug("\n" + targetVars + " -> " + rightSideVars)
 	     
@@ -46,12 +48,18 @@ object Main extends App {
 	      }
 	      //debug("Positions list:\n" + positionList)
 	      
-	      KnowledgeBase.find(targetName, predicateName, positionList)
+	      val gain = KnowledgeBase.calculateGain(targetName, predicateName, positionList)
+	      if (gain > wig) {
+	        wig = gain
+	        maxWigPredicate(predicateName) = rightSideVars
+	      }
 	    }
 	    
 	    
 	  })
 	})
+	
+	println(maxWigPredicate)
 	
 	/*
 	 * Finds target variable position in the right-side predicate variables list
