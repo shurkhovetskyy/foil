@@ -81,11 +81,11 @@ object KnowledgeBase {
 	}
 	
 	
-	def calc(targetTuples: List[List[String]], target: (String, ArrayList[Term]), bodyPredicates: Map[ArrayList[Term], String]) = {
+	def foilAlgorithm(targetTuples: List[List[String]], target: (String, ArrayList[Term]), bodyPredicates: Map[ArrayList[Term], String]) = {
 	  var N = 0 // n++_(i) TODO: check it !!!
     var n = 0 // n+_(i+1)
 
-    var tuplesIntersection = List[List[String]]()
+    var tuplesIntersection = Set[List[String]]()
     bodyPredicates.foreach(predicate => {	   
       
       val predicateTuples = baseHolder.tupleMap(predicate._2)
@@ -101,22 +101,21 @@ object KnowledgeBase {
       targetTuples.foreach(targetTuple => {
         
         var N_added = false
-  	    predicateTuples.foreach(tuple => {
+  	    predicateTuples.foreach(predicateTuple => {
   	      var n_added = true
   	      for (index <- 0 until positionList.size()) {
   	        val current = positionList.get(index)
   	        val term = current._2._2 // obtain Var or Atom object
   
-  	        n_added = n_added && (targetTuple(current._1) == tuple(current._2._1)) && term.isInstanceOf[Var]
+  	        n_added = n_added && (targetTuple(current._1) == predicateTuple(current._2._1)) && term.isInstanceOf[Var]
   	        
   	        //Main.debug(targetTuple(current._1) + " " + tuple(current._2._1) + " " + n_added)
   	      }
 
   	      if (n_added) {
   	        // we save consistent tuple from base knowledge
-  	        newBaseKnowledge = newBaseKnowledge ::: List(tuple)
+  	        newBaseKnowledge = newBaseKnowledge ::: List(predicateTuple)
   	        newTargetTuples = newTargetTuples ::: List(targetTuple)
-  	        
   	        //Main.debug(positionList + " " + targetTuple + " " + tuple)
   	        n += 1
             if (!N_added) {
@@ -128,10 +127,18 @@ object KnowledgeBase {
   	    })
   	  })
   	  
+  	  if (tuplesIntersection.isEmpty) {
+  	    tuplesIntersection = newTargetTuples.toSet
+  	  } else {
+  	    tuplesIntersection = tuplesIntersection.intersect(newTargetTuples.toSet)
+  	  }
+  	  
   	  Main.debug(newBaseKnowledge.toString())
   	  Main.debug(newTargetTuples.toString())
-  	  
 	  })
+	  
+	  
+	  Main.debug("Set of tuples: " + tuplesIntersection.toString())
 	  Main.debug("n++ = " + N + "; n+ = " + n)
 	  (N, n)
 	}
@@ -151,8 +158,8 @@ object KnowledgeBase {
 	  val n_neg_i = negative.size
 	  val ic_prev = entropy(n_pos_i, n_neg_i)
 	  
-	  val pos = calc(positive, target, bodyPredicates)
-    val neg = calc(negative, target, bodyPredicates)
+	  val pos = foilAlgorithm(positive, target, bodyPredicates)
+    val neg = foilAlgorithm(negative, target, bodyPredicates)
 	  
 	  
     var gain = 0d
