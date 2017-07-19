@@ -8,20 +8,19 @@ object Main extends App {
 
   var DEBUG = true
 	KnowledgeBase.load
-	
-	if (DEBUG) {
-	  KnowledgeBase.print
-	}
+	KnowledgeBase.print
+
   
 	var targetPredicates = KnowledgeBase.generateTargetVariables
 	var candidates = KnowledgeBase.generateCandidates
 	
 	targetPredicates.foreach(target => {
 
-    var targetVars = target._2 // get variables list for the target predicate
+	  val targetName = target._1
+    val targetVars = target._2 // get variables list for the target predicate
 			  
 	  candidates.foreach(candidate => {
-	    val predicate = candidate._1 // obtain right-side predicate name
+	    val predicateName = candidate._1 // obtain right-side predicate name
 	    val varsCombinations = candidate._2 // and all its possible variables combinations
 	    val iterator = varsCombinations.iterator() 
 	    
@@ -30,19 +29,26 @@ object Main extends App {
 	      val rightSideVars = iterator.next()
 	      debug("\n" + targetVars + " -> " + rightSideVars)
 	     
-	      val positionList = new ArrayList[(Int, Int)]
+	      // we store target position and tuple (right-side variable position and Term object)
+	      // term object can be variable or atom
+	      // in case of Var object we have to check that all Var objects for both target and right-side predicate must match  in find() method
+	      // and we do not care about Atom objects
+	      val positionList = new ArrayList[(Int, (Int, Term))]
 	      for (targetVarPosition <- 0 until targetVars.size()) {
 	        val targetVar = targetVars.get(targetVarPosition)
 	        val varPosition = findTargetVariblePosition(targetVar, rightSideVars) 
 	        
-	        if (varPosition > -1) { // target variable exists on the right side 
+	        if (varPosition._1 > -1) { // target variable exists on the right side 
 	          // they both must match in base knowledge and target predicate tuples
 	          // TODO: add variable name to position list or nor?
 	          positionList.add((targetVarPosition, varPosition))
 	        }
 	      }
-	      debug("Positions list:\n" + positionList)
+	      //debug("Positions list:\n" + positionList)
+	      
+	      KnowledgeBase.find(targetName, predicateName, positionList)
 	    }
+	    
 	    
 	  })
 	})
@@ -50,11 +56,11 @@ object Main extends App {
 	/*
 	 * Finds target variable position in the right-side predicate variables list
 	 */
-	def findTargetVariblePosition(targetVariable: Term, rightSideRuleVariables: ArrayList[Term]) : Int = { 
+	def findTargetVariblePosition(targetVariable: Term, rightSideRuleVariables: ArrayList[Term]) = { 
     // find target variable position in the variables list of right-side predicate
-    val position = rightSideRuleVariables.indexOf(targetVariable) 
+    val result = (rightSideRuleVariables.indexOf(targetVariable), targetVariable) 
     //debug(targetVariable + " " + position)
-    position
+    result
 	}
 	
 	//foil(bKnowledge)

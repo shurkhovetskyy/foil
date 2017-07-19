@@ -19,6 +19,8 @@ object KnowledgeBase {
 	}
 	
 	def print {
+	  if (!Main.DEBUG)
+	    return
 		println("Base Knowledge:")
 		baseHolder.tupleMap.foreach(println(_))
 		baseHolder.predicateMap.foreach(predicate => println(predicate._2.name + " " + predicate._2.arity))
@@ -48,6 +50,58 @@ object KnowledgeBase {
 	def pos = posHolder
 	def neg = negHolder
 	
+	/*
+	 * Finds variables matching using position in predicate variables list
+	 */
+	def find(targetName: String, predicateName: String, positionList: ArrayList[(Int, (Int, Term))]) = {
+	  val positive = posHolder.tupleMap(targetName)
+	  val negative = negHolder.tupleMap(targetName)
+	  val rightSide = baseHolder.tupleMap(predicateName)
+	  
+	  Main.debug("\nFind variable occurences:")
+	  val posEntropy = findVariable(positive, rightSide, positionList)
+	  val nedEntropy =findVariable(negative, rightSide, positionList)
+	}
+	
+	/* term object can be variable or atom
+	 * in case of Var object we have to check that all Var objects for both target and right-side predicate must match  in find() method
+	 * and we do not care about Atom objects
+	 */
+	def findVariable(targetTuples: List[List[String]], rightSideTuples: List[List[String]], positionList: ArrayList[(Int, (Int, Term))]) = {
+	  Main.debug(targetTuples.toString())
+	  Main.debug(rightSideTuples.toString() + "\n")
+	  //Main.debug(positionList.toString())
+	  
+    var N = 0 // n++ TODO: check it !!!
+    var n = 0 // n+
+    targetTuples.foreach(targetTuple => {
+      var N_added = false
+      
+	    rightSideTuples.foreach(rightSideTupple => {
+	      var n_added = true
+	      for (index <- 0 until positionList.size()) {
+	        
+	        
+	        val current = positionList.get(index)
+	        val term = current._2._2 // obtain Var or Atom object
+
+	        n_added = n_added && (targetTuple(current._1) == rightSideTupple(current._2._1)) && term.isInstanceOf[Var]
+	        if (n_added)
+	          Main.debug(current + " " + targetTuple + " " + rightSideTupple)
+	      }
+	      
+	      if (n_added) {
+	        n += 1
+          if (!N_added) {
+            N += 1
+            N_added = true
+          }
+	      }
+	    })
+	  })
+	  Main.debug("n++ = " + N + "; n+ = " + n)
+	  (N, n)
+	}
 	
 	/*
 	 * Variable generation for the left part of the rule
