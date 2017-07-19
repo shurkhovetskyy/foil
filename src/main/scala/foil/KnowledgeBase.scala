@@ -1,5 +1,7 @@
 package foil
 
+import java.util.ArrayList
+
 object KnowledgeBase {
   
 	private var baseHolder: Data = null
@@ -26,6 +28,12 @@ object KnowledgeBase {
 		
 		println("\nNegative:")
 		negHolder.tupleMap.foreach(println(_))
+
+	  println("\nTarget variables:")
+	  println(generateTargetVariables)
+	  
+	  println("\nCandidates generation:")
+	  println(generateCandidates)
 	}
 	
 	def isTargetPredicate (predicate: String):Boolean = {
@@ -41,7 +49,68 @@ object KnowledgeBase {
 	def neg = negHolder
 	
 	
+	/*
+	 * Variable generation for the left part of the rule
+	 * */
+	def generateTargetVariables = {
+	  var target = scala.collection.mutable.Map.empty[String, ArrayList[Term]]
+	  posHolder.predicateMap.foreach(predicate => {
+	    val name  = predicate._2.name
+	    val arity = predicate._2.arity
+		  var list = new ArrayList[Term]
+		  for( v <- 1 to arity)
+         list.add(new Var("X" + v))
+      target(name) = list
+	  })
+	  target
+	}
 	
+	/*
+	 * All possible variable combinations of base knowledge predicates
+	 * TODO: update it with target predicate when new rule was generated
+	 * */
+	def generateCandidates = {
+	  var result = scala.collection.mutable.Map.empty[String, ArrayList[ArrayList[Term]]]
+	  baseHolder.predicateMap.foreach(predicate => {
+	    var candidates = new ArrayList[ArrayList[Term]]
+	    val name  = predicate._2.name
+	    val arity = predicate._2.arity
+		  // TODO: generate all candidates correctly
+		  if (arity == 2) {
+		    var list = new ArrayList[Term]
+		    list.add(new Var("X1"))
+		    list.add(new Var("X2"))
+		    candidates.add(list)
+		    
+		    list = new ArrayList[Term]
+		    list.add(new Var("X2"))
+		    list.add(new Var("X1"))
+		    candidates.add(list)
+		    
+		    list = new ArrayList[Term]
+		    list.add(new Var("X1"))
+		    list.add(new Atom("Y1")) // we don't care about this variable in the target predicate
+		    candidates.add(list)
+		    
+		    list = new ArrayList[Term]
+		    list.add(new Var("X2"))
+		    list.add(new Atom("Y1")) // we don't care about this variable in the target predicate
+		    candidates.add(list)
+		  } 
+		  else if (arity == 1) {
+		    var list = new ArrayList[Term]
+		    list.add(new Var("X1"))
+		    candidates.add(list)
+		    
+		    list = new ArrayList[Term]
+		    list.add(new Var("X2"))
+		    candidates.add(list)
+		  }
+	  	    
+	    result(name) = candidates
+	  })
+		result
+	}
 	
 
 //	def getItem(key: String): Predicate = {

@@ -3,12 +3,38 @@ package foil
 import scala.io.Source
 import java.util.ArrayList
 
+
 object Main extends App {
 
+  var DEBUG = true
 	KnowledgeBase.load
-	KnowledgeBase.print
 	
+	if (DEBUG) {
+	  KnowledgeBase.print
+	}
+  
+	var targetPredicates = KnowledgeBase.generateTargetVariables
+	var candidates = KnowledgeBase.generateCandidates
+	
+	targetPredicates.foreach(target => {
 
+    var targetVars = target._2	  
+			  
+	  candidates.foreach(candidate => {
+	    val predicate = candidate._1 // obtain predicate name
+	    val varsCombinations = candidate._2 // and all possible variables combinations
+	    val iterator = varsCombinations.iterator()
+	    
+	    if (DEBUG)
+	      println("\nTarget variables position: ")
+	    while (iterator.hasNext()) {
+	      val variables = iterator.next()
+	      if (DEBUG)
+	        println(targetVars + " -> " + variables)
+	    }
+	    
+	  })
+	})
 	
 	//foil(bKnowledge)
 //	println(getTargetPredicate(epos))
@@ -28,6 +54,24 @@ object Main extends App {
 			var newRule = Set.empty[String];
 			var newRuleNeg = KnowledgeBase.neg;
 			while (newRuleNeg != Set.empty) {
+			  var target = KnowledgeBase.generateTargetVariables
+			  var candidates = KnowledgeBase.generateCandidates
+			  
+			  candidates.foreach(candidate => {
+			    val predicate = candidate._1 // obtain predicate name
+			    val varsCombinations = candidate._2 // and all possible variables combinations
+			    val iterator = varsCombinations.iterator()
+			    
+			    while (iterator.hasNext()) {
+			      val variables = iterator.next()
+			      println(variables)
+			    }
+			    
+			    
+			    
+			    
+			  })
+			  
 				// 1. candidate_literals = generate candidates()
 				// 2. best_literal = foil_gain (L, newrule)
 				// 3. add best_literal to new_rule preconditions
@@ -59,15 +103,7 @@ object Main extends App {
 
 	}
 	
-	def generateCandidates (predPool: Set[String]) {
-		KnowledgeBase.base.predicateMap.foreach(predicate => {
-		  val arity = predicate._2.arity
-		  
-		  
-		})
-		
-		
-	}
+	
 }
 
 
