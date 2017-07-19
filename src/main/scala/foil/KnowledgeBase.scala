@@ -71,14 +71,14 @@ object KnowledgeBase {
 	  var N = 0 // n++_(i) TODO: check it !!!
     var n = 0 // n+_(i+1)
 
-    var tuplesIntersection = Set[List[String]]()
+    var tuplesIntersection = targetTuples.toSet//Set[List[String]]()
     bodyPredicates.foreach(predicate => {	   
       
       val predicateTuples = baseHolder.tupleMap(predicate._2)
       val positionList = Term.positionList(target, predicate._1)
       
       Main.debug("\n" + predicate.toString())
-      Main.debug(positionList + " " + targetTuples)
+      Main.debug(positionList + "; Target " + targetTuples)
       Main.debug(predicateTuples.toString())
       
       var newBaseKnowledge = List[List[String]]()
@@ -113,11 +113,11 @@ object KnowledgeBase {
   	    })
   	  })
   	  
-  	  if (tuplesIntersection.isEmpty) {
+  	  /*if (tuplesIntersection.isEmpty) {
   	    tuplesIntersection = newTargetTuples.toSet
-  	  } else {
+  	  } else {*/
   	    tuplesIntersection = tuplesIntersection.intersect(newTargetTuples.toSet)
-  	  }
+  	 // }
   	  
   	  Main.debug(newBaseKnowledge.toString())
   	  Main.debug(newTargetTuples.toString())
@@ -138,34 +138,42 @@ object KnowledgeBase {
   
   	  val targetName = target._1
   	  var positiveExamples = posHolder.tupleMap(targetName)
-  	  var negativeExamples = negHolder.tupleMap(targetName)
   	  
-  	  candidates.foreach(candidate => {
-  	    
-  	    val predicateName = candidate._1 // obtain right-side predicate name
-  	    val varsCombinations = candidate._2 // and all its possible variables combinations
-  	    val iterator = varsCombinations.iterator() 
-  	    
-  	    var wig = 0d
-        while (iterator.hasNext())  { // move all over variables combinations of the right-side predicate
-  	      val rightSideVars = iterator.next()
-  	      val predicates = updateRuleBody(bodyPredicates, predicateName, rightSideVars)
-  
-  	      Main.debug("\nBody: " + predicates)
-  	      
-  	      val tuples = matchTuples(target, predicates, positiveExamples, negativeExamples)
-  	      val gain = tuples._1
-  	      /*positiveExamples = tuples._2._1.toList
-  	      negativeExamples = tuples._2._2.toList*/
-  	      if (gain > wig) {
-  	        wig = gain
-  	        Main.debug("Gain: " + gain + "; Positive " + tuples._2._1.toList + "; Negative " + tuples._2._2.toList)
-  	        bodyPredicates(rightSideVars) = predicateName
-  	      }
-  	    }
-  	    
-  	    
-  	  })
+  	  //while (!positiveExamples.isEmpty) {
+    	  var negativeExamples = negHolder.tupleMap(targetName)
+    	  
+    	  candidates.foreach(candidate => {
+    	    
+    	    val predicateName = candidate._1 // obtain right-side predicate name
+    	    val varsCombinations = candidate._2 // and all its possible variables combinations
+    	    val iterator = varsCombinations.iterator() 
+    	    
+    	    var wig = 0d
+    	    var positive = Set.empty[List[String]]
+          while (!negativeExamples.isEmpty && iterator.hasNext())  { // move all over variables combinations of the right-side predicate
+    	      val rightSideVars = iterator.next()
+    	      val predicates = updateRuleBody(bodyPredicates, predicateName, rightSideVars)
+    
+    	      Main.debug("\nBody: " + predicates)
+    	      
+    	      val tuples = matchTuples(target, predicates, positiveExamples, negativeExamples)
+    	      val gain = tuples._1
+    	      positive = tuples._2._1
+    	      val negative = tuples._2._2
+    	      if (gain > wig) {
+    	        wig = gain
+    	        Main.debug("Gain: " + gain)
+    	        bodyPredicates(rightSideVars) = predicateName
+
+    	        Main.debug("Positive " + positiveExamples + " -> " + positive)
+    	        Main.debug("Negative " + negativeExamples + " -> " + negative)
+    	        negativeExamples = negative.toList
+    	      }
+    	    }
+    	    
+    	    //positiveExamples = positiveExamples.toSet.diff(positive).toList 
+    	  })
+  	  //}
   	})
   	
   	println(bodyPredicates)
@@ -228,7 +236,7 @@ object KnowledgeBase {
 		    list.add(new Var("X1"))
 		    candidates.add(list)
 		    
-		    /*list = new ArrayList[Term]
+		    list = new ArrayList[Term]
 		    list.add(new Var("X1"))
 		    list.add(new Var("X2"))
 		    candidates.add(list)
@@ -241,16 +249,16 @@ object KnowledgeBase {
 		    list = new ArrayList[Term]
 		    list.add(new Var("X2"))
 		    list.add(new Atom("Y1")) // we don't care about this variable in the target predicate
-		    candidates.add(list)*/
+		    candidates.add(list)
 		  } 
 		  else if (arity == 1) {
 		    var list = new ArrayList[Term]
 		    list.add(new Var("X1"))
 		    candidates.add(list)
 		    
-		    /*list = new ArrayList[Term]
+		    list = new ArrayList[Term]
 		    list.add(new Var("X2"))
-		    candidates.add(list)*/
+		    candidates.add(list)
 		  }
 	  	    
 	    result(name) = candidates
