@@ -1,5 +1,7 @@
 package foil
 
+import java.util.ArrayList
+
 class Term(var name:String) {
    override def toString() : String = {
     name
@@ -9,6 +11,39 @@ class Term(var name:String) {
   def apply_bindings(bindings: Map[String, List[List[String]]]) : Term = {
     this
   }
+}
+
+object Term {
+  	
+	/*
+	 * Finds target variable position in the right-side predicate variables list
+	 */
+	def findTargetVariblePosition(targetVariable: Term, rightSideRuleVariables: ArrayList[Term]) = { 
+    // find target variable position in the variables list of right-side predicate
+    val result = (rightSideRuleVariables.indexOf(targetVariable), targetVariable) 
+    //debug(targetVariable + " " + position)
+    result
+	}
+	
+	/*
+	 * we store target position and body variable position
+	 * term object can be variable or atom
+	 */
+	def positionList(target: (String, ArrayList[Term]), predicateVars: ArrayList[Term]) = {
+	  val targetVars = target._2 // get variables list for the target predicate
+    
+    val positionList = new ArrayList[(Int, (Int, Term))]
+    for (index <- 0 until targetVars.size()) {
+      val targetVar = targetVars.get(index)
+      val varPosition = Term.findTargetVariblePosition(targetVar, predicateVars) 
+      
+      if (varPosition._1 > -1) { // target variable exists on the right side 
+        // they both must match in body predicate and target predicate tuples
+        positionList.add((index, varPosition))
+      }
+    }
+	  positionList
+	}
 }
 
 class Atom(name:String) extends Term(name:String)  {

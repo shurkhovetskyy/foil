@@ -2,7 +2,7 @@ package foil
 
 import scala.io.Source
 import java.util.ArrayList
-
+import scala.collection.mutable.Map
 
 object Main extends App {
 
@@ -13,45 +13,28 @@ object Main extends App {
   
 	var targetPredicates = KnowledgeBase.generateTargetVariables
 	var candidates = KnowledgeBase.generateCandidates
-	var maxWigPredicate = scala.collection.mutable.Map.empty[String, ArrayList[Term]]
+	var bodyPredicates = Map.empty[ArrayList[Term], String] // predicates to be added to the body
 	        
 	targetPredicates.foreach(target => {
 
-	  val targetName = target._1
-    val targetVars = target._2 // get variables list for the target predicate
-			  
 	  candidates.foreach(candidate => {
+	    
 	    val predicateName = candidate._1 // obtain right-side predicate name
 	    val varsCombinations = candidate._2 // and all its possible variables combinations
 	    val iterator = varsCombinations.iterator() 
 	    
-      debug("\nTarget variables position: ")
-      var wig = 0d
+	    var wig = 0d
       while (iterator.hasNext())  { // move all over variables combinations of the right-side predicate
 	      val rightSideVars = iterator.next()
-	      debug("\n" + targetVars + " -> " + rightSideVars)
-	     
-	      // we store target position and tuple (right-side variable position and Term object)
-	      // term object can be variable or atom
-	      // in case of Var object we have to check that all Var objects for both target and right-side predicate must match  in find() method
-	      // and we do not care about Atom objects
-	      val positionList = new ArrayList[(Int, (Int, Term))]
-	      for (targetVarPosition <- 0 until targetVars.size()) {
-	        val targetVar = targetVars.get(targetVarPosition)
-	        val varPosition = findTargetVariblePosition(targetVar, rightSideVars) 
-	        
-	        if (varPosition._1 > -1) { // target variable exists on the right side 
-	          // they both must match in base knowledge and target predicate tuples
-	          // TODO: add variable name to position list or nor?
-	          positionList.add((targetVarPosition, varPosition))
-	        }
-	      }
-	      //debug("Positions list:\n" + positionList)
+	      val predicates = updateRuleBody(bodyPredicates, predicateName, rightSideVars)
+
+	      debug("\nBody: " + predicates)
 	      
-	      val gain = KnowledgeBase.calculateGain(targetName, predicateName, positionList)
+	      val gain = KnowledgeBase.calculateGain(target, predicates)
 	      if (gain > wig) {
 	        wig = gain
-	        maxWigPredicate(predicateName) = rightSideVars
+	        debug("Gain: " + gain)
+	        bodyPredicates(rightSideVars) = predicateName
 	      }
 	    }
 	    
@@ -59,17 +42,14 @@ object Main extends App {
 	  })
 	})
 	
-	println(maxWigPredicate)
-	
-	/*
-	 * Finds target variable position in the right-side predicate variables list
-	 */
-	def findTargetVariblePosition(targetVariable: Term, rightSideRuleVariables: ArrayList[Term]) = { 
-    // find target variable position in the variables list of right-side predicate
-    val result = (rightSideRuleVariables.indexOf(targetVariable), targetVariable) 
-    //debug(targetVariable + " " + position)
-    result
-	}
+	println(bodyPredicates)
+
+  def updateRuleBody(bodyPredicates: Map[ArrayList[Term], String], predicateName: String, predicateVars: ArrayList[Term]) = {
+    // clone map with body predicates
+    val updatedBody = Map[ArrayList[Term], String]() ++= bodyPredicates
+    updatedBody(predicateVars) = predicateName
+    updatedBody
+  }
 	
 	//foil(bKnowledge)
 //	println(getTargetPredicate(epos))
