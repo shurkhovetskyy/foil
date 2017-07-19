@@ -18,23 +18,44 @@ object Main extends App {
 	
 	targetPredicates.foreach(target => {
 
-    var targetVars = target._2	  
+    var targetVars = target._2 // get variables list for the target predicate
 			  
 	  candidates.foreach(candidate => {
-	    val predicate = candidate._1 // obtain predicate name
-	    val varsCombinations = candidate._2 // and all possible variables combinations
-	    val iterator = varsCombinations.iterator()
+	    val predicate = candidate._1 // obtain right-side predicate name
+	    val varsCombinations = candidate._2 // and all its possible variables combinations
+	    val iterator = varsCombinations.iterator() 
 	    
-	    if (DEBUG)
-	      println("\nTarget variables position: ")
-	    while (iterator.hasNext()) {
-	      val variables = iterator.next()
-	      if (DEBUG)
-	        println(targetVars + " -> " + variables)
+      debug("\nTarget variables position: ")
+	    while (iterator.hasNext())  { // move all over variables combinations of the right-side predicate
+	      val rightSideVars = iterator.next()
+	      debug("\n" + targetVars + " -> " + rightSideVars)
+	     
+	      val positionList = new ArrayList[(Int, Int)]
+	      for (targetVarPosition <- 0 until targetVars.size()) {
+	        val targetVar = targetVars.get(targetVarPosition)
+	        val varPosition = findTargetVariblePosition(targetVar, rightSideVars) 
+	        
+	        if (varPosition > -1) { // target variable exists on the right side 
+	          // they both must match in base knowledge and target predicate tuples
+	          // TODO: add variable name to position list or nor?
+	          positionList.add((targetVarPosition, varPosition))
+	        }
+	      }
+	      debug("Positions list:\n" + positionList)
 	    }
 	    
 	  })
 	})
+	
+	/*
+	 * Finds target variable position in the right-side predicate variables list
+	 */
+	def findTargetVariblePosition(targetVariable: Term, rightSideRuleVariables: ArrayList[Term]) : Int = { 
+    // find target variable position in the variables list of right-side predicate
+    val position = rightSideRuleVariables.indexOf(targetVariable) 
+    //debug(targetVariable + " " + position)
+    position
+	}
 	
 	//foil(bKnowledge)
 //	println(getTargetPredicate(epos))
@@ -103,7 +124,10 @@ object Main extends App {
 
 	}
 	
-	
+	def debug(out: String) {
+	   if (DEBUG)
+	      println(out)
+	}
 }
 
 
