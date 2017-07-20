@@ -118,9 +118,8 @@ object KnowledgeBase {
   	  } else {*/
   	    tuplesIntersection = tuplesIntersection.intersect(newTargetTuples.toSet)
   	 // }
-  	  
-  	  Main.debug(newBaseKnowledge.toString())
-  	  Main.debug(newTargetTuples.toString())
+  	  Main.debug("Head: " + newTargetTuples.toString())
+  	  Main.debug("Body: " + newBaseKnowledge.toString())
 	  })
 	  
 	  
@@ -132,7 +131,7 @@ object KnowledgeBase {
 	def foil() {
   	var targetPredicates = generateTargetVariables
   	var candidates = generateCandidates
-  	var bodyPredicates = Map.empty[ArrayList[Term], String] // predicates to be added to the body
+  	var bodyPredicates = new ArrayList[(String, ArrayList[Term])] // predicates to be added to the body
   	        
   	targetPredicates.foreach(target => {
   
@@ -163,7 +162,7 @@ object KnowledgeBase {
     	      if (gain > wig) {
     	        wig = gain
     	        Main.debug("Gain: " + gain)
-    	        bodyPredicates(rightSideVars) = predicateName
+    	        bodyPredicates.add((predicateName, rightSideVars)) // TODO 
 
     	        Main.debug("Positive " + positiveExamples + " -> " + positive)
     	        Main.debug("Negative " + negativeExamples + " -> " + negative)

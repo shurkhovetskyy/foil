@@ -138,3 +138,20 @@ class Pred (name:String) extends Term(name:String)  {
       else: new_terms.append(term)
     return self.predicate(*new_terms)*/
 }
+
+
+class Rule (predicates: ArrayList[Predicate]) {
+  
+  
+  def getPredicates = {predicates}
+}
+
+
+
+
+
+
+
+
+
+
