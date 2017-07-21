@@ -18,7 +18,7 @@ object Term {
 	/*
 	 * Finds target variable position in the right-side predicate variables list
 	 */
-	def findTargetVariblePosition(targetVariable: Term, rightSideRuleVariables: ArrayList[Term]) = { 
+	def findTargetVariblePosition(targetVariable: Term, rightSideRuleVariables: List[Term]) = { 
     // find target variable position in the variables list of right-side predicate
     val result = (rightSideRuleVariables.indexOf(targetVariable), targetVariable) 
     //debug(targetVariable + " " + position)
@@ -29,7 +29,7 @@ object Term {
 	 * we store target position and body variable position
 	 * term object can be variable or atom
 	 */
-	def positionList(target: (String, ArrayList[Term]), predicateVars: ArrayList[Term]) = {
+	def positionList(target: (String, ArrayList[Term]), predicateVars: List[Term]) = {
 	  val targetVars = target._2 // get variables list for the target predicate
     
     val positionList = new ArrayList[(Int, (Int, Term))]

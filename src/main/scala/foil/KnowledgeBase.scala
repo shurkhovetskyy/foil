@@ -67,7 +67,7 @@ object KnowledgeBase {
 	}
 	
 	
-	def foilAlgorithm(targetTuples: List[List[String]], target: (String, ArrayList[Term]), bodyPredicates: Map[ArrayList[Term], String]) = {
+	def foilAlgorithm(targetTuples: List[List[String]], target: (String, ArrayList[Term]), bodyPredicates: Map[List[Term], String]) = {
 	  var N = 0 // n++_(i) TODO: check it !!!
     var n = 0 // n+_(i+1)
 
@@ -78,8 +78,8 @@ object KnowledgeBase {
       val positionList = Term.positionList(target, predicate._1)
       
       Main.debug("\n" + predicate.toString())
-      Main.debug(positionList + "; Target " + targetTuples)
-      Main.debug(predicateTuples.toString())
+      Main.debug("Target tupples: " + targetTuples)
+      Main.debug("Predicate tupples: " + predicateTuples.toString())
       
       var newBaseKnowledge = List[List[String]]()
       var newTargetTuples = List[List[String]]() // to check existence of negative patterns
@@ -118,61 +118,84 @@ object KnowledgeBase {
   	  } else {*/
   	    tuplesIntersection = tuplesIntersection.intersect(newTargetTuples.toSet)
   	 // }
-  	  Main.debug("Head: " + newTargetTuples.toString())
-  	  Main.debug("Body: " + newBaseKnowledge.toString())
+  	  
+  	  /*Main.debug(newBaseKnowledge.toString())
+  	  Main.debug(newTargetTuples.toString())*/
 	  })
 	  
 	  
 	  Main.debug("Set of tuples: " + tuplesIntersection.toString())
-	  Main.debug("n++ = " + N + "; n+ = " + n)
+	  //Main.debug("n++ = " + N + "; n+ = " + n)
 	  (tuplesIntersection, (N, n))
 	}
 	
 	def foil() {
   	var targetPredicates = generateTargetVariables
   	var candidates = generateCandidates
-  	var bodyPredicates = new ArrayList[(String, ArrayList[Term])] // predicates to be added to the body
+  	var bodyPredicates = Map.empty[List[Term], String] // predicates to be added to the body
   	        
   	targetPredicates.foreach(target => {
   
   	  val targetName = target._1
   	  var positiveExamples = posHolder.tupleMap(targetName)
   	  
-  	  //while (!positiveExamples.isEmpty) {
+  	  while (!positiveExamples.isEmpty) {
     	  var negativeExamples = negHolder.tupleMap(targetName)
     	  
-    	  candidates.foreach(candidate => {
-    	    
-    	    val predicateName = candidate._1 // obtain right-side predicate name
-    	    val varsCombinations = candidate._2 // and all its possible variables combinations
-    	    val iterator = varsCombinations.iterator() 
-    	    
+    	  var maxPositive = Set.empty[List[String]]
+    	  var maxNegative = Set.empty[List[String]]
+  	    var max: (List[Term], String) = null
+    	  
+    	  while (!negativeExamples.isEmpty)  {
     	    var wig = 0d
-    	    var positive = Set.empty[List[String]]
-          while (!negativeExamples.isEmpty && iterator.hasNext())  { // move all over variables combinations of the right-side predicate
-    	      val rightSideVars = iterator.next()
-    	      val predicates = updateRuleBody(bodyPredicates, predicateName, rightSideVars)
-    
-    	      Main.debug("\nBody: " + predicates)
-    	      
-    	      val tuples = matchTuples(target, predicates, positiveExamples, negativeExamples)
-    	      val gain = tuples._1
-    	      positive = tuples._2._1
-    	      val negative = tuples._2._2
-    	      if (gain > wig) {
-    	        wig = gain
-    	        Main.debug("Gain: " + gain)
-    	        bodyPredicates.add((predicateName, rightSideVars)) // TODO 
-
-    	        Main.debug("Positive " + positiveExamples + " -> " + positive)
-    	        Main.debug("Negative " + negativeExamples + " -> " + negative)
-    	        negativeExamples = negative.toList
-    	      }
-    	    }
+      	  candidates.foreach(candidate => {
+      	    
+      	    val predicateName = candidate._1 // obtain right-side predicate name
+      	    val varsCombinations = candidate._2 // and all its possible variables combinations
+      	    val iterator = varsCombinations.iterator() 
+      	    
+      	    
+      	    
+      	   
+            while (iterator.hasNext())  { // move all over variables combinations of the right-side predicate
+      	      val rightSideVars = iterator.next()
+      	      val predicates = updateRuleBody(bodyPredicates, predicateName, rightSideVars)
+      
+      	      Main.debug("\n\nBody: " + predicates)
+      	      
+      	      val tuples = matchTuples(target, predicates, positiveExamples, negativeExamples)
+      	      val gain = tuples._1
+  
+      	      if (gain > wig) {
+      	        wig = gain      	        
+  
+      	        //Main.debug("Positive " + positiveExamples + " -> " + tuples._2._1)
+      	        //Main.debug("Negative " + negativeExamples + " -> " + tuples._2._2)
+      	        
+      	        
+      	        maxPositive = tuples._2._1
+      	        maxNegative = tuples._2._2
+      	        max = (rightSideVars, predicateName)
+      	      }
+      	    }
+      	  })
+      	  
+      	  Main.debug("Maximum gain: " + wig)
+      	  Main.debug("Covered negative examples: " + maxNegative)
+	        Main.debug("Predicate with maximum gain " + max)
+	        bodyPredicates(max._1) = max._2
+    	    negativeExamples = maxNegative.toList
+    	  }
     	    
-    	    //positiveExamples = positiveExamples.toSet.diff(positive).toList 
-    	  })
-  	  //}
+  	    //if (max != null) {
+  	      
+  	      positiveExamples = positiveExamples.toSet.diff(maxPositive).toList
+  	      
+  	      Main.debug("\nCovered positive examples: " + maxPositive)
+	        Main.debug("Positive examples to cover: " + positiveExamples)
+  	    //}
+
+  	  }
   	})
   	
   	println(bodyPredicates)
@@ -182,7 +205,7 @@ object KnowledgeBase {
 	 * Term object can be variable or atom
 	 * in case of Var object we have to check that all Var objects for both target and right-side predicate must match
 	 */
-	def matchTuples(target: (String, ArrayList[Term]), bodyPredicates: Map[ArrayList[Term], String], positive: List[List[String]], negative: List[List[String]]) = {
+	def matchTuples(target: (String, ArrayList[Term]), bodyPredicates: Map[List[Term], String], positive: List[List[String]], negative: List[List[String]]) = {
 	  
 	  val n_pos_i = positive.size
 	  val n_neg_i = negative.size
@@ -194,11 +217,12 @@ object KnowledgeBase {
     val positiveExamples = pos._1
     val negativeExamples = neg._1
     var gain = 0d
+    var ic_next = 0d
     if (pos._2._2 != 0 &&  neg._2._2 != 0) {
-	    val ic_next = entropy(pos._2._2,  neg._2._2)
+	    ic_next = entropy(pos._2._2,  neg._2._2)
 	    gain = wig(ic_prev, ic_next, pos._2._1) 
-	    Main.debug(n_pos_i + " " + n_neg_i + " " + ic_prev + " " + ic_next + " " + gain)
-	  }
+    }
+	  Main.debug(/*n_pos_i + " " + n_neg_i + " " + ic_prev + " " + ic_next + */" Gain: " + gain)
 	  (gain, (positiveExamples, negativeExamples))     
 	}
 	
@@ -223,41 +247,25 @@ object KnowledgeBase {
 	 * TODO: update it with target predicate when new rule was generated
 	 * */
 	def generateCandidates = {
-	  var result = scala.collection.mutable.Map.empty[String, ArrayList[ArrayList[Term]]]
+	  var result = scala.collection.mutable.Map.empty[String, ArrayList[List[Term]]]
 	  baseHolder.predicateMap.foreach(predicate => {
-	    var candidates = new ArrayList[ArrayList[Term]]
+	    var candidates = new ArrayList[List[Term]]
 	    val name  = predicate._2.name
 	    val arity = predicate._2.arity
 		  // TODO: generate all candidates correctly
 		  if (arity == 2) {
-		    var list = new ArrayList[Term]
-		    list.add(new Var("X2"))
-		    list.add(new Var("X1"))
-		    candidates.add(list)
-		    
-		    list = new ArrayList[Term]
-		    list.add(new Var("X1"))
-		    list.add(new Var("X2"))
-		    candidates.add(list)
-		    
-		    list = new ArrayList[Term]
-		    list.add(new Var("X1"))
-		    list.add(new Atom("Y1")) // we don't care about this variable in the target predicate
-		    candidates.add(list)
-		    
-		    list = new ArrayList[Term]
-		    list.add(new Var("X2"))
-		    list.add(new Atom("Y1")) // we don't care about this variable in the target predicate
-		    candidates.add(list)
+		    candidates.add(List(new Var("X2"), new Var("X1")))
+		    candidates.add(List(new Var("X1"), new Var("X2")))
+		    candidates.add(List(new Var("X1"), new Atom("Y1")))
+		    candidates.add(List(new Atom("Y1"), new Var("X1")))
+		    candidates.add(List(new Var("X2"), new Atom("Y1")))
+		    candidates.add(List(new Atom("Y1"), new Var("X2")))
+		    candidates.add(List(new Var("X1"), new Var("X1")))
+		    candidates.add(List(new Var("X2"), new Var("X2")))
 		  } 
 		  else if (arity == 1) {
-		    var list = new ArrayList[Term]
-		    list.add(new Var("X1"))
-		    candidates.add(list)
-		    
-		    list = new ArrayList[Term]
-		    list.add(new Var("X2"))
-		    candidates.add(list)
+		    candidates.add(List(new Var("X1")))
+		    candidates.add(List(new Var("X2")))
 		  }
 	  	    
 	    result(name) = candidates
@@ -265,9 +273,9 @@ object KnowledgeBase {
 		result
 	}
 	
-  def updateRuleBody(bodyPredicates: Map[ArrayList[Term], String], predicateName: String, predicateVars: ArrayList[Term]) = {
+  def updateRuleBody(bodyPredicates: Map[List[Term], String], predicateName: String, predicateVars: List[Term]) = {
     // clone map with body predicates
-    val updatedBody = Map[ArrayList[Term], String]() ++= bodyPredicates
+    val updatedBody = Map[List[Term], String]() ++= bodyPredicates
     updatedBody(predicateVars) = predicateName
     updatedBody
   }
