@@ -14,9 +14,9 @@ object KnowledgeBase {
 	}
 	
 	def load {
-	  posHolder = Data.apply("/foil/pos.data")
-		negHolder = Data.apply("/foil/neg.data")
-		baseHolder = Data.apply("/foil/bg.data")
+	  posHolder = Data.apply("/foil/pos_1.data")
+		negHolder = Data.apply("/foil/neg_1.data")
+		baseHolder = Data.apply("/foil/bg_1.data")
 	}
 	
 	def print {
@@ -119,8 +119,8 @@ object KnowledgeBase {
   	    tuplesIntersection = tuplesIntersection.intersect(newTargetTuples.toSet)
   	 // }
   	  
-  	  /*Main.debug(newBaseKnowledge.toString())
-  	  Main.debug(newTargetTuples.toString())*/
+  	  Main.debug(newBaseKnowledge.toString())
+  	  Main.debug(newTargetTuples.toString())
 	  })
 	  
 	  
@@ -163,7 +163,7 @@ object KnowledgeBase {
       
       	      Main.debug("\n\nBody: " + predicates)
       	      
-      	      val tuples = matchTuples(target, predicates, positiveExamples, negativeExamples)
+      	      val tuples = findMaximalClause(target, predicates, positiveExamples, negativeExamples)
       	      val gain = tuples._1
   
       	      if (gain > wig) {
@@ -205,7 +205,7 @@ object KnowledgeBase {
 	 * Term object can be variable or atom
 	 * in case of Var object we have to check that all Var objects for both target and right-side predicate must match
 	 */
-	def matchTuples(target: (String, ArrayList[Term]), bodyPredicates: Map[List[Term], String], positive: List[List[String]], negative: List[List[String]]) = {
+	def findMaximalClause(target: (String, ArrayList[Term]), bodyPredicates: Map[List[Term], String], positive: List[List[String]], negative: List[List[String]]) = {
 	  
 	  val n_pos_i = positive.size
 	  val n_neg_i = negative.size
