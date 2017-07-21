@@ -97,49 +97,6 @@ object Var {
   }
 }
 
-class VariableFactory {  
-  def getVariable(name: String) : Var = {
-    new Var(name)
-  }
-}
-  
-  
-class AtomFactory {
-  def getAtom(name: String) : Atom = {
-    new Atom(name)
-  }
-}
-
-class Pred (name:String) extends Term(name:String)  {
-  
-  var predicate : Predicate = null
-  
-  def this(name: String, predicate : Predicate, terms: (Member, Var)*) {
-    this(name)
-    this.predicate = predicate
-    /*this.terms = terms
-    this.variables = None*/
-  }
-  
-  /*def __repr__(self):
-    return str(self)
-  
-  def __str__(self):
-    if len(self.terms) > 0: return str(self.predicate) + "(" + str(reduce(lambda x,y: str(x) + ", " + str(y), self.terms)) + ")"
-    else: return str(self.predicate)
-    
-  def __hash__(self):
-    return hash(self.predicate.name) + len(self.terms)
-  
-  def apply_bindings(self, bindings):
-    new_terms = []
-    for term in self.terms:
-      if isinstance(term, Term): new_terms.append(term.apply_bindings(bindings))
-      else: new_terms.append(term)
-    return self.predicate(*new_terms)*/
-}
-
-
 class Rule (predicates: ArrayList[Predicate]) {
   
   

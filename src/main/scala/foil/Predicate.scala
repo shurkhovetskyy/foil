@@ -85,34 +85,4 @@ class RuleBasedPredicate(name: String) extends Predicate(name: String) {
       }
       finalRules
     }
-
-	/*def resolve(terms: List[(Member, Var)]) {
-    from trimlogic.algorithm import unify
-    println(this + "._resolve( " + str(terms) + " ) ")
-    for rule in self.rules:
-      rule = rule.instantiate()
-      logging.debug("considering rule: " + str(rule))
-      Head, Body, variables = rule.terms, rule.body, rule.variables
-      mgu = unify(terms, Head, {})
-      if mgu != None: 
-        logging.debug("substitutions: " + str(mgu))
-        yield (mgu, list(Body), variables)
-  }
-  
-  def add_rule(self, Head=None, Body=None) {
-    if self.arity == None: self.arity = len(Head)
-    if Body == None: self.rules.append(Fact(self, Head))
-    else: self.rules.append(Rule(self, Head, Body))
-  }
-  
-  override def toString() : String = {
-    if (this.name.isEmpty) {
-      
-    }
-  }
-  
-  def __str__(self) {
-    if self.name != None: return self.name
-    else: return object.__str__(self)
-  }*/
 }
