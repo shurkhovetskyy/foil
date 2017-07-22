@@ -14,14 +14,12 @@ object KnowledgeBase {
 	}
 	
 	def load {
-	  posHolder = Data.apply("/foil/pos_1.data")
-		negHolder = Data.apply("/foil/neg_1.data")
-		baseHolder = Data.apply("/foil/bg_1.data")
+	  posHolder = Data.apply("/foil/pos.data")
+		negHolder = Data.apply("/foil/neg.data")
+		baseHolder = Data.apply("/foil/bg.data")
 	}
 	
 	def print {
-	  if (!Main.DEBUG)
-	    return
 		println("Base Knowledge:")
 		baseHolder.tupleMap.foreach(println(_))
 		baseHolder.predicateMap.foreach(predicate => println(predicate._2.name + " " + predicate._2.arity))
