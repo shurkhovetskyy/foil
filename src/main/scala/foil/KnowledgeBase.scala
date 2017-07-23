@@ -18,9 +18,9 @@ object KnowledgeBase {
 	}
 
 	def load {
-		posHolder = DataSource.apply("/foil/pos_2.data")
-		negHolder = DataSource.apply("/foil/neg_2.data")
-		baseHolder = DataSource.apply("/foil/bg_2.data")
+		posHolder = DataSource.apply("/foil/pos.data")
+		negHolder = DataSource.apply("/foil/neg.data")
+		baseHolder = DataSource.apply("/foil/bg.data")
 	}
 
 	def print {
