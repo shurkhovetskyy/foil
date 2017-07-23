@@ -1,8 +1,10 @@
 package foil
 
 import java.util.ArrayList
+import java.io._
 
-class Term(var name:String) {
+@SerialVersionUID(100L)
+class Term(var name:String) extends Serializable{
    override def toString() : String = {
     name
   }
@@ -46,7 +48,8 @@ object Term {
 	}
 }
 
-class Atom(name:String) extends Term(name:String)  {
+@SerialVersionUID(100L)
+class Atom(name:String) extends Term(name:String) with Serializable  {
     
   override def hashCode = {
     val hash =  if (name.isEmpty()) 0 else name.hashCode
@@ -66,7 +69,8 @@ class Atom(name:String) extends Term(name:String)  {
   }
 }
 
-class Var(name:String) extends Term(name:String)  {
+@SerialVersionUID(100L)
+class Var(name:String) extends Term(name:String) with Serializable  {
 
   var scope: List[String] = null
   
@@ -97,7 +101,8 @@ object Var {
   }
 }
 
-class Rule (predicates: ArrayList[Predicate]) {
+@SerialVersionUID(100L)
+class Rule (predicates: ArrayList[Predicate]) extends Serializable{
   
   
   def getPredicates = {predicates}
