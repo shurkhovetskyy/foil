@@ -5,6 +5,7 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{amsthm}
+\usepackage{caption}
 \usepackage{algorithm}
 \usepackage[noend]{algorithmic}
 \usepackage{natbib}
@@ -172,8 +173,10 @@ It is not intended to apply any parallelization of the process. For implementati
 one of them is presented below in Table 1.
 
 \begin{tabular}{c}
-\caption{Table 1. FOIL Design II (by \citet{Pazzani1992}).}
+
 \end{tabular}
+
+Table 1. FOIL Design II (by \citet{Pazzani1992}).
 
 \begin{tabular}{|l|l|} %% viravnivanie: r po pravomu krau   c po centru
   \hline
@@ -216,6 +219,7 @@ one of them is presented below in Table 1.
   \hline
   7j & \qquad\qquad Let Neg be all extensions of Neg that are satisfied by the literal  \\
   \hline
+
  \end{tabular}
 
 \vspace{6pt}
@@ -297,6 +301,17 @@ Now consider method $findMaximalClause$  having as Input $targetPredicate$ (i.e.
 
 The method $foilAlgorithm$ is designed for check tuples in FOIL algorithm. As Input it has $targetTuples$ to be checked, $targetPredicate$ in left-hand side of the rule, $bodyPredicates$ already generated right-hand side of the rule. As Output $foilAlgorithm$  obtains Scala tuple containing calculated $n^+$, $n^-$ and $n^{++}$, and the set of the tuples covered by the rule.
 
+\subsection {Parallelization }
+
+In FOIL algorithm number of predicates and number of possible variable combinations happen to be the drivers of complexity of the entire approach to learn the rules. This makes precisely the step which succeed generation of candidates to be the perfect candidates for parallelization. After we have built our pool of candidates, we resort to distributive capabilities of Spark to achieve parallelization.
+
+In particular, in method $foil$ we convert $candidates$ into a Spark-ready data object - Resilient Distributed Dataset (RDD). At this point it contains list of predicates available. We define $flatMap$ operation on our existing RDD. It applies specified function of every element of given RDD and returns a new one. In this particular case we expand all the variable candidates for a predicate so that later one we could easily calculate gain for every combination.
+
+Next step involves evaluation every candidate defined by predicate and variable combination. We define another $map$-based transformation with a function which calculates gain for every element in the RDD. $Map$ transformation is different from $flatMap$ in that it does not return an array, but only a single unit. This fits our needs perfectly at this point since we have already expanded the candidates' list and are only interested in 1:1 mapping of candidate to its gain.
+
+Final step is reduction which ultimately triggers the transformations specified previously ($flatMap$ and $map$). Function based on which it executes is associative and binary - it takes two arguments and returns one. In our case it is implemented in comparator-like fashion as we are interested in being left with just one record in a resulting RDD - the one which holds configuration with the highest gain. Function $getMaxGain$ does exactly that by first retrieving gain value from the tuples and then comparing it to gain of opponent unit.
+
+After having executed $reduce$ action operator we are free to extract the calculated values and suggest the rules.
 
 \section{Evaluations}
 
@@ -348,8 +363,10 @@ The obtained rule is the same above: $s(X_1, X_2)\leftarrow m(X_1)\; p(X_2, X_1)
 \vspace{6pt}
 
 \begin{tabular}{c}
-\caption{Table 2. Efficiency indicators.}
+
 \end{tabular}
+
+Table 2. Efficiency indicators.
 
 \begin{tabular}{|c|c|c|c|} %% viravnivanie: r po pravomu krau   c po centru
   \hline
@@ -378,7 +395,7 @@ Installed memory (RAM) = 8GB; System type --- 64-bit Operating System Windows 10
 1. Georgiy Shurkhovetskyy --- Team leader; 2. Eskender Haziiev --- Team  member.
 
 
-\vspace{3t}
+\vspace{3pt}
 
 \begin{tabular}{|c|l|c|} %% viravnivanie: r po pravomu krau   c po centru
   \hline
