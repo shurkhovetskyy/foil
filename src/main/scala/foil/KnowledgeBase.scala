@@ -5,18 +5,18 @@ import scala.collection.mutable.Map
 
 object KnowledgeBase {
   
-	private var baseHolder: Data = null
-	private var posHolder: Data = null
-	private var negHolder: Data = null
+	private var baseHolder: DataSource = null
+	private var posHolder: DataSource = null
+	private var negHolder: DataSource = null
 	
 	def declarePositiveExamples() {
 	  
 	}
 	
 	def load {
-	  posHolder = Data.apply("/foil/pos.data")
-		negHolder = Data.apply("/foil/neg.data")
-		baseHolder = Data.apply("/foil/bg.data")
+	  posHolder = DataSource.apply("/foil/pos_2.data")
+		negHolder = DataSource.apply("/foil/neg_2.data")
+		baseHolder = DataSource.apply("/foil/bg_2.data")
 	}
 	
 	def print {
@@ -39,7 +39,7 @@ object KnowledgeBase {
 	
 	def isTargetPredicate (predicate: String):Boolean = {
 	  if (posHolder != null) {
-		  posHolder.relations.contains(predicate)
+		  posHolder.literals.contains(predicate)
 	  } else {
 	    true
 	  }
@@ -196,7 +196,7 @@ object KnowledgeBase {
   	  }
   	})
   	
-  	println(bodyPredicates)
+  	println("\nGenerated rule: " + targetPredicates + " <- " + bodyPredicates)
 	}
 	
 	/* 
