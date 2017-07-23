@@ -216,33 +216,6 @@ object KnowledgeBase {
 					// unit with highest gain value.
 					val res = crdd.reduce((a, b) => getMaxGain(a, b))
 
-					//					candidates.foreach(candidate => {
-					//
-					//						val predicateName = candidate._1 // obtain right-side predicate name
-					//						val varsCombinations = candidate._2 // and all its possible variables combinations
-					//						val iterator = varsCombinations.iterator()
-					//
-					//						while (iterator.hasNext()) { // move all over variables combinations of the right-side predicate
-					//							val rightSideVars = iterator.next()
-					//							val predicates = updateRuleBody(bodyPredicates, predicateName, rightSideVars)
-					//							Main.debug("\n\nBody: " + predicates)
-					//
-					//							val tuples = findMaximalClause(target, predicates, positiveExamples, negativeExamples)
-					//							val gain = tuples._1
-					//
-					//							if (gain > wig) {
-					//								wig = gain
-					//
-					//								//Main.debug("Positive " + positiveExamples + " -> " +  tuples._2._1)
-					//								//Main.debug("Negative " + negativeExamples + " -> " + tuples._2._2)
-					//
-					//								maxPositive = tuples._2._1
-					//								maxNegative = tuples._2._2
-					//								max = (rightSideVars, predicateName)
-					//							}
-					//						}
-					//					})
-
 					maxPositiveSpark = res._2._2._1
 					maxNegativeSpark = res._2._2._2
 					maxSpark = (res._1._2, res._1._1)
