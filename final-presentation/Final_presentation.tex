@@ -1,4 +1,4 @@
-\documentclass[handout]{beamer}
+\documentclass[t]{beamer}
 
 \usepackage[T2A]{fontenc}
 \usepackage[cp1251]{inputenc}
@@ -47,10 +47,13 @@
 
 \textbf{Definition 1}. A literal $L$ may be predicate $P$ or
  $\neg{P}$.
+\pause
 
 \textbf{Definition 2}. A clause body is a conjunction of literals.
+\pause
 
 \textbf{Definition 3}. A clause head is predicate.
+\pause
 
 \textbf{Definition 4}. A Horn clause consists of a head and a
  body:
@@ -63,10 +66,11 @@ P\leftarrow L_1,L_2,..., L_n .
 The predicates can be defined \emph{extensionally} as a list of
 tuples for which the predicate is true, or \emph{intensionally} as
 a set of Horn clauses.
-
+\pause
 
 \textbf{Definition 6}. $k$-tuple $<a_1, a_2, \ldots, a_k>$ is a
 finite sequence of $k$ constants.
+\pause
 
 \textbf{Definition 7}. A tuple satisfies a learning rule if it
 satisfies one of the Horn clauses of this rule.
@@ -78,6 +82,7 @@ For a target relation a set of $\oplus$tuples is also given. A set
 of the $\ominus$tuples not belonging to the target relation may be
 given. The statement is introduced: if some tuple is not included
 in set $\oplus$tuples then it is $\ominus$tuple.
+\pause
 
 \textcolor[rgb]{0.00,0.00,1.00}{\textbf{Problem statement:}} Using
 Spark framework realize FOIL to find a learning rule as a set of
@@ -89,9 +94,11 @@ positive examples and not cover any given negative examples.
 \begin{frame}{Approach}
 Foil algorithm is realized using Scala in Spark framework.
 \begin{figure}[h!]\centering
-\includegraphics[scale =0.42]{approach.png}
+\includegraphics[scale =0.40]{approach.png}
 \end{figure}
-\vspace{-6pt} \footnotesize{To select literal with greatest
+
+\pause
+\vspace{-8pt} \footnotesize{To select literal with greatest
 positive gain:}
 \begin{equation}\label{eq4}
 gain (L_{i})=n_i^{\oplus\oplus} \cdot (I(T_i)-I(T_{i+1})),\quad
@@ -118,11 +125,14 @@ $T_i$ represented by one or more tuples in $T_{i+1}$.
 
 \footnotesize{Indicators:}
 $n_1(A)=\frac{n^\oplus_{\textrm{covered}}(A)}{n^\oplus_{\textrm{given}}}$, $n_2(A)=\frac{n^\ominus_{\textrm{covered}}(A)}{n^\ominus_{\textrm{given}}}$, $n_3(A)=\textrm{runtime}(A)$.
+\pause
 
 \vspace{2pt}
 \textcolor[rgb]{0.00,0.00,1.00}{Experiment 1.} (a), \underline{results:} $daughter(X_1,X_2) \leftarrow female(X_1) parent(X_2,X_1)$;\\ covered $\oplus$ examples: (Emily, Tom), (Mary, Ann); covered $\ominus$ examples: $\emptyset$.
+\pause
 
 \textcolor[rgb]{0.00,0.00,1.00}{Experiment 2.} (b), \underline{results:} $daughter(X_1,X_2) \leftarrow female(X_1) parent(X_2,X_1)$;\\ covered $\oplus$ examples: (Opra, Ann), (Kate, Ann), (Lina, Kate), (Gail, Hovard); covered $\ominus$ examples: $\emptyset$.
+\pause
 
 \textcolor[rgb]{0.00,0.00,1.00}{Experiment 3.} (b), \underline{results:} $son(X_1,X_2) \leftarrow male(X_1) parent(X_2,X_1)$;\\ covered $\oplus$ examples: (Ryan, Uve), (Bill, Opra), (Hovard, Ann), (Nick, Kate), (Uve, Ann), (Tom, Uve); covered $\ominus$ examples: $\emptyset$.
 \vspace{-8pt}
@@ -139,58 +149,62 @@ $n_1(A)=\frac{n^\oplus_{\textrm{covered}}(A)}{n^\oplus_{\textrm{given}}}$, $n_2(
 \begin{frame}{Conclusion and future work}
 \footnotesize \textcolor[rgb]{0.00,0.00,1.00}{Results of presented
 project are:}
+\pause
 
-1. In Spark framework Foil algorithm is realized:
+1. FOIL algorithm is implemented in Spark:
 
 \qquad (i) the developed application gets the input data in
 extensionally form (i.e. consists of names and $\oplus$ and
 $\ominus$ tuples for target predicate, and names and $\oplus$
 tuples for background predicates;)
+\pause
 
-\qquad (ii) the results are obtained  both in intensionally form
-(i.e. as Horn clause for the target relation that consistent with
-given $\oplus$tuples and not cover any given $\ominus$tuples) and
- extensionally form.
+\qquad (ii) the results are obtained  both in intensional form
+(i.e. as Horn clause for the target relation that is consistent with
+given $\oplus$tuples and does not cover any given $\ominus$tuples) and
+ extensional form.
+\pause
 
 2. To evaluate developed application the metrics based on three
 efficiency indicators are introduced.
+\pause
 
-3. three experiments were performed and on this base developed
-application is evaluated as having sufficient efficiency.
+3. Three experiments show implementation performs at sufficient efficiency.
+\pause
 
 
 \vspace {12pt}
 
 
-\textcolor[rgb]{0.00,0.00,1.00}{The future steps to developed
-application may be:}
+\textcolor[rgb]{0.00,0.00,1.00}{The future steps might include:}
+\pause
 
 1. Carrying out experiments with a more complex data structure,
 for example, when a tree node is described by a large number of
 predicates;
+\pause
 
 2. Evaluation of the application efficiency compared to other
 implementations of the Foil algorithm.
 \end{frame}
 
 %%------------------------------------------------------------------------------------------ 7
-\begin{frame}{Lesson learned}
+\begin{frame}{Lessons Learned}
 
 Besides the detailed study of the FOIL algorithm
 
 we also consider as the results of this project the following:
-
+\pause
 \vspace {12pt}
 
-1. The extension of our skills on  applications development using
+1. The extension of our general skills on applications development using
 the Spark framework and the Scala programming language;
+\pause
 
-2. The receive of the skills in evaluation of an applications
-effectiveness, including an experience in selection and drawing up
-of the training data.
+2. Gaining experience in project testing and selection of evaluation datasets.
+\pause
 
-3. The extension of our experience on writing of the reports and
-project drafting.
+3. Getting deeper understanding of how and when to apply distributed means of data processing.
 
 \end{frame}
 
